@@ -3,9 +3,35 @@ import config from "../config.json";
 import styled from "styled-components";
 import Menu from "../src/components/Menu/Index";
 import { StyledTimeline } from "../src/components/Timeline";
+import { createClient } from "@supabase/supabase-js";
+import { videoService } from "../src/components/services/videoService";
+
 
 function HomePage() {
+  const Service = videoService();
   const [valorDoFiltro, setValorDoFiltro] = React.useState(" ");
+  const [playlists, setPlaylists] = React.useState({});
+
+  React.useEffect(() => {
+    console.log("useEffect");
+    Service
+      .getAllVideos()
+      .then((dados) => {
+        console.log(dados.data);
+
+        const novasPlaylists = { ...playlists }
+        dados.data.forEach((video) => {
+          if (!novasPlaylists[video.playlist]) {
+            novasPlaylists[video.playlist] = [];
+          }
+          novasPlaylists[video.playlist].push(video);
+        })
+        setPlaylists(novasPlaylists);
+      });
+
+  }, []);
+
+  console.log("Playlists Pronto", playlists);
 
   return (
     <>
