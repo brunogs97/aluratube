@@ -1,5 +1,6 @@
 import React from "react";
 import { StyledRegisterVideo } from "./styles";
+import { createClient } from "@supabase/supabase-js"
 
 // Custom Hook
 function useForm(proposDoForm) {
@@ -21,12 +22,23 @@ function useForm(proposDoForm) {
     };
 }
 
+
+const PROJECT_URL = "https://fowpitxrkxxuzpekygjt.supabase.co";
+const PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZvd3BpdHhya3h4dXpwZWt5Z2p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjgyMDY4MDYsImV4cCI6MTk4Mzc4MjgwNn0.I_B7kIKBh1bgGJinfvYiDvi1KwdaNUIDRCzYURmvyw4"
+const supabase = createClient(PROJECT_URL, PUBLIC_KEY);
+
+// get youtube from video url
+function getThumbnail(url) {
+    return `https:img.youtube.com/vi/${url.split("v=")[1]}/hqdefault.jpg`;
+}
+
 export default function RegisterVideo() {
     const formCadastro = useForm({
-        initialValues: { titulo: "Paulo Muzy", url: "https://youtube.." }
+        initialValues: { titulo: "Paulo Muzy", url: "https://www.youtube.com/watch?v=0T15hFEvwyY" }
     });
     const [formVisivel, setFormVisivel] = React.useState(false);
 
+    console.log();
 
     return (
         <StyledRegisterVideo>
@@ -40,6 +52,21 @@ export default function RegisterVideo() {
                     <form onSubmit={(evento) => {
                         evento.preventDefault();
                         console.log(formCadastro.value);
+
+                        // Contrato entre o nosso Front e o BackEnd
+                        supabase.from("video").insert({
+                            title: formCadastro.values.titulo,
+                            url: formCadastro.values.url,
+                            thumb: getThumbnail(formCadastro.values.url),
+                            playlist: "jogos",
+                         })
+                         .then((oqueveio) => {
+                            console.log(oqueveio);
+                         })
+                         .catch((err) => {
+                            console.log(err);
+                         })
+
                         setFormVisivel(false);
                         formCadastro.clearForm();
                     }}>
